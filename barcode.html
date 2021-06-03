@@ -20,17 +20,18 @@
 	</style>
 </head>
 <body>
+
 	<div class="row">
 		<div class="col-md-4 col-md-offset-4 codeContainer">
 			<div class="pd-15">
 				<div class="form-group">
-					<label>Desde:</label>
+					<label>Últim digit:</label>
 					<input type="text" name="fromValue" id="fromValue" class="form-control" value="0">
 				</div>
 
 				<div class="form-group">
-					<label>Fins a:</label>
-					<input type="text" name="toValue" id="toValue" class="form-control" value="10">
+					<label>Quantitat:</label>
+					<input type="text" name="toValue" id="amount" class="form-control" value="10">
 				</div>
 				<input  id="btnSubmit" type="button" onclick="generateBarcode()" class="btn btn-success form-control" value="Generate">
 			</div>
@@ -45,11 +46,76 @@
 		</div>
 	</div>
 
-	<script type="text/javascript" src="custom.js"></script>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.3/dist/JsBarcode.all.min.js"></script>
 	
+	<script type="text/javascript">
+
+        function calculateCode(value){
+			var appId = 90;
+			var formatType = 523;
+			//clave emisora
+			var prov = 46;
+			var mun = 131;
+			var controlDigit = 3;
+			//numero justificante
+			var modelCode = 047;
+			var dataId = 4;
+			let v = "" + value;
+			let year = new Date();
+			
+			if(value.length != 6){
+				let str = "0";	
+				for (let i = 0; i < 7-v.length; i++) {
+					str += "0";
+				}
+				value = year.getFullYear().toString().substr(-2) + str + value;				
+			}
+			var secuentialNum = value; //"00058461";
+
+			//concats
+			var emisor = "461313";
+			var justNum = "0474" + secuentialNum;
+			var controlInt = (parseInt(emisor, 10) + parseInt(justNum, 10)) % 7;
+
+			if(controlInt === 0){
+				return "" + appId + formatType + emisor + justNum + "7";
+			}else{
+				return "" + appId + formatType + emisor + justNum + controlInt;
+			}
+        }
+
+		function generateBarcode(){
+			var from = document.getElementById("fromValue").value;
+			var amount = parseInt(from, 10) + parseInt(document.getElementById("amount").value, 10);	
+
+ 			if(from >= amount){
+				alert("El nombre inicial es més gran que el nombre de fi");
+			}
+
+			for (let i = from; i < amount; i++) {				
+				//905234613130474000584616
+				$('#theDiv').prepend('<svg id="barcode'+i+'"></svg>')
+				
+ 				JsBarcode("#barcode"+i, calculateCode(i), {
+					format: "code128c",
+					displayValue: true,
+					lineColor: "#24292e",
+					width:1.5,
+					height:40,	
+					fontSize: 10					
+				});	 
+			}
+			$("#btnSubmit").attr("disabled", true);
+		}
+
+		$('input').change(function(){
+			$("#btnSubmit").attr("disabled", false);
+		}) 
+		
+	</script>
 
 
 </body>
