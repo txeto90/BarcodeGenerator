@@ -36,6 +36,10 @@ function generateBarcode(){
     var from = document.getElementById("fromValue").value;
     var to = document.getElementById("toValue").value;	
 
+    if(from >= to){
+        alert("El nombre inicial es més gran que el nombre de fi");
+    }
+
     for (let i = from; i < to; i++) {				
         //905234613130474000584616
         $('#theDiv').prepend('<svg id="barcode'+i+'"></svg>')
@@ -49,4 +53,9 @@ function generateBarcode(){
             fontSize: 10					
         });	 
     }
+    $("#btnSubmit").attr("disabled", true);
 }
+
+$('input').change(function(){
+    $("#btnSubmit").attr("disabled", false);
+})
